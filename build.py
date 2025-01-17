@@ -69,8 +69,7 @@ def build_for_linux():
         'g++', '-O3', '-Wall', '-shared', '-std=c++20', '-fPIC', '-mavx', '-Wall',
         '$(python3 -m pybind11 --includes)', f'-I./src/ame/include',
         './src/bind.cpp',
-        '-o', './build/fauna$(python3-config --extension-suffix)',
-        '-lmpg123', '-lsndfile'
+        '-o', './build/fauna$(python3-config --extension-suffix)'
     ]
 
     # Выполнение команды
