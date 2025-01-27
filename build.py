@@ -40,7 +40,7 @@ def build_for_windows():
 
     # Команда компиляции
     compiler_command = [
-        'g++', '-O3', '-std=c++20', '-shared', '-fPIC', '-static-libgcc', '-static-libstdc++', '-Wall', '-mavx',
+        'g++', '-O3', '-std=c++20', '-shared', '-fPIC', '-static-libgcc', '-static-libstdc++', '-Wall', '-mavx', '-mfma', '-march=native',
         '-lmingw32', '-mwindows',
         f'-I{include_dir}', f'-I./src/include',
         f'-L{libs_dir}',
@@ -66,10 +66,11 @@ def build_for_linux():
 
     # Команда компиляции
     compiler_command = [
-        'g++', '-O3', '-Wall', '-shared', '-std=c++20', '-fPIC', '-mavx', '-Wall',
+        'g++', '-O3', '-Wall', '-shared', '-std=c++20', '-fPIC', '-mavx', '-Wall', '-mavx', '-mfma', '-march=native',
         '$(python3 -m pybind11 --includes)', f'-I./src/ame/include',
         './src/bind.cpp',
-        '-o', './build/fauna$(python3-config --extension-suffix)'
+        '-o', './build/fauna$(python3-config --extension-suffix)',
+        '-lmpg123', '-lsndfile'
     ]
 
     # Выполнение команды
