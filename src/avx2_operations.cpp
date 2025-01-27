@@ -131,18 +131,29 @@ std::vector<float> AVX2Operations::cross_product(const std::vector<float>& a, co
     }
 
     std::vector<float> result(3);
-    __m128 avx_a = _mm_loadu_ps(&a[0]);
-    __m128 avx_b = _mm_loadu_ps(&b[0]);
+    
+    // Загружаем векторы, добавляем 0 для выравнивания
+    __m128 avx_a = _mm_set_ps(0.0f, a[2], a[1], a[0]);
+    __m128 avx_b = _mm_set_ps(0.0f, b[2], b[1], b[0]);
 
-    __m128 temp1 = _mm_shuffle_ps(avx_a, avx_a, _MM_SHUFFLE(3, 0, 2, 1));
-    __m128 temp2 = _mm_shuffle_ps(avx_b, avx_b, _MM_SHUFFLE(3, 0, 2, 1));
+    // Перемешивание для расчета произведений
+    __m128 temp1 = _mm_shuffle_ps(avx_a, avx_a, _MM_SHUFFLE(3, 0, 2, 1)); // (a_y, a_z, a_x, 0)
+    __m128 temp2 = _mm_shuffle_ps(avx_b, avx_b, _MM_SHUFFLE(3, 1, 0, 2)); // (b_z, b_x, b_y, 0)
+    __m128 cross1 = _mm_mul_ps(temp1, temp2); // a_y * b_z, a_z * b_x, a_x * b_y
 
-    __m128 cross = _mm_sub_ps(
-        _mm_mul_ps(temp1, avx_b),
-        _mm_mul_ps(avx_a, temp2)
-    );
+    temp1 = _mm_shuffle_ps(avx_a, avx_a, _MM_SHUFFLE(3, 1, 0, 2)); // (a_z, a_x, a_y, 0)
+    temp2 = _mm_shuffle_ps(avx_b, avx_b, _MM_SHUFFLE(3, 0, 2, 1)); // (b_y, b_z, b_x, 0)
+    __m128 cross2 = _mm_mul_ps(temp1, temp2); // a_z * b_y, a_x * b_z, a_y * b_x
 
+    // Вычитание результатов
+    __m128 cross = _mm_sub_ps(cross1, cross2);
+
+    // Сохранение результатов
     _mm_storeu_ps(&result[0], cross);
+
+    // Удаляем лишний элемент
+    result.resize(3);
+
     return result;
 }
 
